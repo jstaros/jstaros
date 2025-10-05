@@ -9,43 +9,58 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0b0c0f;--fg:#e6e6e6;--muted:#adb5bd;--card:#121318;--line:#252733}
+    :root{
+      --bg:#0b0c10; --fg:#e8e8ea; --muted:#9aa1ab; --card:#101218; --line:#262a36;
+      --accent:#b41b3b; --accent-2:#5f1132; --ring:#e94a6a;
+    }
     html,body{height:100%}
-    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg)}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:1rem}
-    .btn{border:1px solid var(--line);padding:.5rem .75rem;border-radius:.75rem}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(60% 120% at 80% -10%,rgba(180,27,59,.20),transparent),radial-gradient(60% 120% at -10% 10%,rgba(94,17,50,.25),transparent),var(--bg);color:var(--fg)}
+    .gridbg{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);background-size:22px 22px;mask-image:radial-gradient(ellipse at center, rgba(0,0,0,.65) 20%, rgba(0,0,0,.1) 70%, transparent 85%)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));border:1px solid var(--line);border-radius:1rem;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .btn{border:1px solid var(--line);padding:.6rem .9rem;border-radius:.75rem;transition:transform .08s ease, background .2s ease, border-color .2s ease}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:linear-gradient(180deg, var(--accent), var(--accent-2));border-color:transparent;color:white}
+    .btn-primary:hover{filter:brightness(1.05)}
+    .btn-muted{background:#141826}
     .btn:disabled{opacity:.6;cursor:not-allowed}
-    input,select,textarea{background:#0f1116;border:1px solid var(--line);border-radius:.5rem;padding:.5rem .6rem;width:100%;color:var(--fg)}
-    label{font-size:.85rem;font-weight:600}
+    input,select,textarea{background:#0f1116;border:1px solid var(--line);border-radius:.65rem;padding:.55rem .7rem;width:100%;color:var(--fg);outline:none}
+    input:focus,select:focus,textarea:focus{border-color:var(--ring);box-shadow:0 0 0 2px rgba(233,74,106,.25)}
+    label{font-size:.85rem;font-weight:600;color:#c8cbd2}
     .muted{color:var(--muted)}
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}
-    .section{padding:1rem}
-    .tabs button[aria-selected="true"]{background:#1b1d26}
-    .dotbox select{width:4.25rem;text-align:center}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem}
+    .section{padding:1.1rem}
+    .tabs{position:sticky;top:0;background:linear-gradient(180deg, rgba(10,11,15,.9), rgba(10,11,15,.65));backdrop-filter:blur(6px);z-index:20;padding:.5rem;border:1px solid var(--line);border-radius:999px;display:flex;flex-wrap:wrap;gap:.5rem}
+    .tabs .btn{border-radius:999px;padding:.45rem .9rem}
+    .tabs .btn[aria-selected="true"]{background:#1b1f2b;border-color:#343849}
     .small{font-size:.82rem}
+    .h1-grad{background:linear-gradient(90deg,#fff, #f5cbd3 60%, #ff6786 120%);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .stat-pill{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;border:1px solid var(--line);border-radius:999px;background:#121421}
   </style>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </head>
 <body>
   <main class="max-w-7xl mx-auto p-6 space-y-6">
     <header class="flex items-center justify-between">
-      <h1 class="text-3xl font-extrabold">VTM5 Ghoul Builder (Standalone)</h1>
+      <div>
+        <h1 class="text-3xl font-extrabold h1-grad">VTM5 Ghoul Builder</h1>
+        <p class="muted text-sm">A sleek, single‑file character maker for Vampire: The Masquerade 5e ghouls</p>
+      </div>
       <div class="flex gap-2">
-        <button id="downloadPdf" class="btn">Download Fill‑able PDF</button>
+        <button id="downloadPdf" class="btn btn-primary">Download Fill‑able PDF</button>
       </div>
     </header>
 
     <!-- Tabs -->
-    <nav class="tabs flex flex-wrap gap-2">
-      <button class="btn" data-tab="basics" aria-selected="true">Basics</button>
-      <button class="btn" data-tab="domitor">Domitor</button>
-      <button class="btn" data-tab="attributes">Attributes</button>
-      <button class="btn" data-tab="skills">Skills</button>
-      <button class="btn" data-tab="advantages">Adv./Flaws</button>
-      <button class="btn" data-tab="disciplines">Disciplines</button>
-      <button class="btn" data-tab="summary">Summary</button>
-      <button class="btn" data-tab="dice">Dice Roller</button>
+    <nav class="tabs">
+      <button class="btn btn-muted" data-tab="basics" aria-selected="true">Basics</button>
+      <button class="btn btn-muted" data-tab="domitor">Domitor</button>
+      <button class="btn btn-muted" data-tab="attributes">Attributes</button>
+      <button class="btn btn-muted" data-tab="skills">Skills</button>
+      <button class="btn btn-muted" data-tab="advantages">Adv./Flaws</button>
+      <button class="btn btn-muted" data-tab="disciplines">Disciplines</button>
+      <button class="btn btn-muted" data-tab="summary">Summary</button>
+      <button class="btn btn-muted" data-tab="dice">Dice</button>
     </nav>
 
     <!-- BASICS -->
@@ -75,7 +90,13 @@
         <label for="notes">Notes (Touchstones, Convictions, background)</label>
         <textarea id="notes" rows="3" placeholder="Touchstones, Convictions, history, etc."></textarea>
       </div>
-      <p class="muted text-sm mt-3">Guided by the V5 Players Guide ghoul rules: Attribute array (4/3/3/1/2s), Skills presets, 7 Adv / 2 Flaws, 1 level‑1 Discipline from domitor, Humanity 7 baseline.</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <span class="stat-pill">Attribute array: <b class="ml-1">4/3/3/1/2s</b></span>
+        <span class="stat-pill">Advantages: <b class="ml-1">7</b></span>
+        <span class="stat-pill">Flaws: <b class="ml-1">2</b></span>
+        <span class="stat-pill">Discipline: <b class="ml-1">1× L1</b></span>
+        <span class="stat-pill">Humanity: <b class="ml-1">7</b></span>
+      </div>
     </section>
 
     <!-- DOMITOR -->
@@ -105,7 +126,7 @@
     <section class="card section hidden" data-panel="attributes">
       <h2 class="text-xl font-semibold mb-3">Attributes</h2>
       <div id="attrGrid" class="grid-3"></div>
-      <div class="mt-4 p-4 rounded-lg" style="background:#0f1116;border:1px solid var(--line)">
+      <div class="mt-4 p-4 rounded-xl" style="background:#0f1116;border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.35)">
         <div class="font-semibold mb-2">Checklist (enforced by you)</div>
         <ul class="list-disc pl-6 text-sm space-y-1">
           <li>Best Attribute at 4 — have: <b id="chkAt4">0</b></li>
@@ -125,7 +146,7 @@
         <div class="flex items-center gap-2">
           <label for="preset" class="muted text-sm">Preset</label>
           <select id="preset" class="w-48"></select>
-          <button id="applyPreset" class="btn">Apply</button>
+          <button id="applyPreset" class="btn btn-primary">Apply</button>
         </div>
       </div>
       <p class="muted small mt-1">Jack: 1×3, 8×2, 10×1 · Balanced: 3×3, 5×2, 7×1 · Specialist: 1×4, 3×3, 3×2, 3×1. Use dropdowns to fine‑tune.</p>
@@ -138,7 +159,7 @@
           <label>Free Specialties (Academics, Craft, Performance, Science) + 1 extra</label>
           <div class="grid-2 mt-2" id="freeSpecs"></div>
         </div>
-        <div class="p-3 rounded-lg" style="background:#0f1116;border:1px solid var(--line)">
+        <div class="p-3 rounded-xl" style="background:#0f1116;border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.28)">
           <div class="font-semibold mb-2">Preset Summary</div>
           <div class="text-sm">Lv4: <b id="sum4">0</b> · Lv3: <b id="sum3">0</b> · Lv2: <b id="sum2">0</b> · Lv1: <b id="sum1">0</b> · Lv0: <b id="sum0">0</b></div>
         </div>
@@ -154,7 +175,7 @@
           <div class="mt-2 flex gap-2">
             <select id="advName" class="w-full"></select>
             <select id="advDots" class="w-24"></select>
-            <button id="addAdv" class="btn">Add</button>
+            <button id="addAdv" class="btn btn-primary">Add</button>
           </div>
           <div id="advList" class="mt-3 space-y-2"></div>
           <div class="text-sm mt-2">Total dots: <b id="advTotal">0</b></div>
@@ -165,7 +186,7 @@
           <div class="mt-2 flex gap-2">
             <select id="flawName" class="w-full"></select>
             <select id="flawDots" class="w-24"></select>
-            <button id="addFlaw" class="btn">Add</button>
+            <button id="addFlaw" class="btn btn-primary">Add</button>
           </div>
           <div id="flawList" class="mt-3 space-y-2"></div>
           <div class="text-sm mt-2">Total dots: <b id="flawTotal">0</b></div>
@@ -227,7 +248,7 @@
         </div>
         <div></div>
         <div class="flex justify-end">
-          <button id="roll" class="btn">Roll</button>
+          <button id="roll" class="btn btn-primary">Roll</button>
         </div>
       </div>
       <div id="rollOut" class="mt-3 p-3 rounded-lg" style="background:#0f1116;border:1px solid var(--line)">
@@ -238,6 +259,7 @@
     </section>
 
     <footer class="muted text-xs">Fan-made tool for Vampire: The Masquerade 5th Edition ghoul creation. Non‑commercial personal use.</footer>
+    <div class="gridbg"></div>
   </main>
 
   <script>
