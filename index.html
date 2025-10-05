@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VTM5 Ghoul Builder – Standalone (No Build)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b0c0f;--fg:#e6e6e6;--muted:#adb5bd;--card:#121318;--line:#252733}
+    html,body{height:100%}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:1rem}
+    .btn{border:1px solid var(--line);padding:.5rem .75rem;border-radius:.75rem}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    input,select,textarea{background:#0f1116;border:1px solid var(--line);border-radius:.5rem;padding:.5rem .6rem;width:100%;color:var(--fg)}
+    label{font-size:.85rem;font-weight:600}
+    .muted{color:var(--muted)}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}
+    .section{padding:1rem}
+    .tabs button[aria-selected="true"]{background:#1b1d26}
+    .dotbox input{width:3.5rem;text-align:center}
+  </style>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+  <main class="max-w-6xl mx-auto p-6 space-y-6">
+    <header class="flex items-center justify-between">
+      <h1 class="text-3xl font-extrabold">VTM5 Ghoul Builder (Standalone)</h1>
+      <div class="flex gap-2">
+        <button id="downloadPdf" class="btn">Download Fill‑able PDF</button>
+      </div>
+    </header>
+
+    <section class="card section">
+      <h2 class="text-xl font-semibold mb-3">Character Basics</h2>
+      <div class="grid-2">
+        <div>
+          <label for="name">Name</label>
+          <input id="name" placeholder="e.g., Harper Quinn"/>
+        </div>
+        <div>
+          <label for="concept">Concept</label>
+          <input id="concept" placeholder="e.g., ‘Union fixer with a secret’"/>
+        </div>
+      </div>
+      <div class="mt-3">
+        <label for="notes">Notes</label>
+        <textarea id="notes" rows="3" placeholder="Ambition, Desire, Touchstones, Convictions, etc."></textarea>
+      </div>
+      <p class="muted text-sm mt-3">This standalone version is pure HTML + JavaScript. No React/build steps needed.</p>
+    </section>
+
+    <footer class="muted text-xs">Fan-made tool for Vampire: The Masquerade 5th Edition Ghoul creation. Non-commercial personal use only.</footer>
+  </main>
+
+  <script>
+    document.getElementById('downloadPdf').addEventListener('click', async ()=>{
+      const { PDFDocument, StandardFonts } = PDFLib;
+      const pdfDoc = await PDFDocument.create();
+      const page = pdfDoc.addPage([612,792]);
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const title = (x,y,t)=> page.drawText(t,{x,y,size:18,font});
+      const label = (x,y,t)=> page.drawText(t,{x,y,size:10,font});
+
+      const name = document.getElementById('name').value;
+      const concept = document.getElementById('concept').value;
+      const notes = document.getElementById('notes').value;
+
+      title(40,750,'VTM5 Ghoul Character');
+      label(40,730,'Name: '+name);
+      label(40,715,'Concept: '+concept);
+      label(40,700,'Notes: '+notes);
+
+      const bytes = await pdfDoc.save();
+      const blob = new Blob([bytes], {type:'application/pdf'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href=url; a.download=`${name||'ghoul'}.pdf`; a.click(); URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
