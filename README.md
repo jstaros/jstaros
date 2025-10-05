@@ -1,11 +1,11 @@
-# 🩸 VTM5 Ghoul Builder
+# VTM5 Ghoul Builder
 
 **Vampire: The Masquerade 5th Edition – Ghoul Character Generator**  
 A browser tool for creating and exporting ghouls for *Vampire: The Masquerade 5th Edition*.
 
 ---
 
-## 🎯 Features
+## Features
 
 - **Interactive Character Creation Flow**
   - Step through **Basics → Domitor → Attributes → Skills → Advantages/Flaws → Disciplines → Summary → Dice Roller**  
@@ -31,7 +31,7 @@ A browser tool for creating and exporting ghouls for *Vampire: The Masquerade 5t
 
 ---
 
-## 🧛‍♀️ About Ghouls in V5
+## About Ghouls in V5
 
 According to the *V5 Player’s Guide* and *V5 Core Rules*:
 - Ghouls are mortals who have ingested vampiric vitae.
@@ -43,7 +43,7 @@ This builder follows those parameters and incorporates ghoul-specific options fr
 
 ---
 
-## 🚀 How to Use
+## How to Access
 
 Visit:  
  **https://jstaros.github.io/vtm5-ghoul-builder/**  
