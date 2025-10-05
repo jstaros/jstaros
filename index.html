@@ -22,12 +22,13 @@
     .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}
     .section{padding:1rem}
     .tabs button[aria-selected="true"]{background:#1b1d26}
-    .dotbox input{width:3.5rem;text-align:center}
+    .dotbox select{width:4.25rem;text-align:center}
+    .small{font-size:.82rem}
   </style>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </head>
 <body>
-  <main class="max-w-6xl mx-auto p-6 space-y-6">
+  <main class="max-w-7xl mx-auto p-6 space-y-6">
     <header class="flex items-center justify-between">
       <h1 class="text-3xl font-extrabold">VTM5 Ghoul Builder (Standalone)</h1>
       <div class="flex gap-2">
@@ -35,7 +36,20 @@
       </div>
     </header>
 
-    <section class="card section">
+    <!-- Tabs -->
+    <nav class="tabs flex flex-wrap gap-2">
+      <button class="btn" data-tab="basics" aria-selected="true">Basics</button>
+      <button class="btn" data-tab="domitor">Domitor</button>
+      <button class="btn" data-tab="attributes">Attributes</button>
+      <button class="btn" data-tab="skills">Skills</button>
+      <button class="btn" data-tab="advantages">Adv./Flaws</button>
+      <button class="btn" data-tab="disciplines">Disciplines</button>
+      <button class="btn" data-tab="summary">Summary</button>
+      <button class="btn" data-tab="dice">Dice Roller</button>
+    </nav>
+
+    <!-- BASICS -->
+    <section class="card section" data-panel="basics">
       <h2 class="text-xl font-semibold mb-3">Character Basics</h2>
       <div class="grid-2">
         <div>
@@ -47,39 +61,492 @@
           <input id="concept" placeholder="e.g., ‘Union fixer with a secret’"/>
         </div>
       </div>
-      <div class="mt-3">
-        <label for="notes">Notes</label>
-        <textarea id="notes" rows="3" placeholder="Ambition, Desire, Touchstones, Convictions, etc."></textarea>
+      <div class="grid-2 mt-3">
+        <div>
+          <label for="ambition">Ambition</label>
+          <input id="ambition" placeholder="Long-term goal"/>
+        </div>
+        <div>
+          <label for="desire">Desire</label>
+          <input id="desire" placeholder="Short-term goal"/>
+        </div>
       </div>
-      <p class="muted text-sm mt-3">This standalone version is pure HTML + JavaScript. No React/build steps needed.</p>
+      <div class="mt-3">
+        <label for="notes">Notes (Touchstones, Convictions, background)</label>
+        <textarea id="notes" rows="3" placeholder="Touchstones, Convictions, history, etc."></textarea>
+      </div>
+      <p class="muted text-sm mt-3">Guided by the V5 Players Guide ghoul rules: Attribute array (4/3/3/1/2s), Skills presets, 7 Adv / 2 Flaws, 1 level‑1 Discipline from domitor, Humanity 7 baseline.</p>
     </section>
 
-    <footer class="muted text-xs">Fan-made tool for Vampire: The Masquerade 5th Edition Ghoul creation. Non-commercial personal use only.</footer>
+    <!-- DOMITOR -->
+    <section class="card section hidden" data-panel="domitor">
+      <h2 class="text-xl font-semibold mb-3">Domitor</h2>
+      <div class="grid-2">
+        <div>
+          <label for="domitorName">Domitor Name</label>
+          <input id="domitorName"/>
+        </div>
+        <div>
+          <label for="domitorClan">Domitor Clan</label>
+          <select id="domitorClan"></select>
+        </div>
+      </div>
+      <div class="mt-4">
+        <label>Domitor Disciplines (tick all that apply)</label>
+        <div id="domitorDisciplines" class="grid-3 mt-2"></div>
+      </div>
+      <div class="mt-3">
+        <label for="domitorNotes">Domitor / Relationship Notes</label>
+        <textarea id="domitorNotes" rows="3" placeholder="Blood Bond level? Boons? Coterie ties?" ></textarea>
+      </div>
+    </section>
+
+    <!-- ATTRIBUTES -->
+    <section class="card section hidden" data-panel="attributes">
+      <h2 class="text-xl font-semibold mb-3">Attributes</h2>
+      <div id="attrGrid" class="grid-3"></div>
+      <div class="mt-4 p-4 rounded-lg" style="background:#0f1116;border:1px solid var(--line)">
+        <div class="font-semibold mb-2">Checklist (enforced by you)</div>
+        <ul class="list-disc pl-6 text-sm space-y-1">
+          <li>Best Attribute at 4 — have: <b id="chkAt4">0</b></li>
+          <li>Three Attributes at 3 — have: <b id="chkAt3">0</b></li>
+          <li>Worst Attribute at 1 — have: <b id="chkAt1">0</b></li>
+          <li>Remaining Attributes at 2</li>
+          <li class="mt-2">Derived: Health = Stamina + 3 → <b id="health">—</b></li>
+          <li>Derived: Willpower = Resolve + Composure → <b id="willpower">—</b></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="card section hidden" data-panel="skills">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-semibold">Skills</h2>
+        <div class="flex items-center gap-2">
+          <label for="preset" class="muted text-sm">Preset</label>
+          <select id="preset" class="w-48"></select>
+          <button id="applyPreset" class="btn">Apply</button>
+        </div>
+      </div>
+      <p class="muted small mt-1">Jack: 1×3, 8×2, 10×1 · Balanced: 3×3, 5×2, 7×1 · Specialist: 1×4, 3×3, 3×2, 3×1. Use dropdowns to fine‑tune.</p>
+      <div class="grid-2 mt-4">
+        <div id="skillColA" class="space-y-2"></div>
+        <div id="skillColB" class="space-y-2"></div>
+      </div>
+      <div class="grid-2 mt-4">
+        <div>
+          <label>Free Specialties (Academics, Craft, Performance, Science) + 1 extra</label>
+          <div class="grid-2 mt-2" id="freeSpecs"></div>
+        </div>
+        <div class="p-3 rounded-lg" style="background:#0f1116;border:1px solid var(--line)">
+          <div class="font-semibold mb-2">Preset Summary</div>
+          <div class="text-sm">Lv4: <b id="sum4">0</b> · Lv3: <b id="sum3">0</b> · Lv2: <b id="sum2">0</b> · Lv1: <b id="sum1">0</b> · Lv0: <b id="sum0">0</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADVANTAGES / FLAWS -->
+    <section class="card section hidden" data-panel="advantages">
+      <h2 class="text-xl font-semibold mb-3">Advantages & Flaws</h2>
+      <div class="grid-2">
+        <div>
+          <label>Advantages (target 7 dots)</label>
+          <div class="mt-2 flex gap-2">
+            <select id="advName" class="w-full"></select>
+            <select id="advDots" class="w-24"></select>
+            <button id="addAdv" class="btn">Add</button>
+          </div>
+          <div id="advList" class="mt-3 space-y-2"></div>
+          <div class="text-sm mt-2">Total dots: <b id="advTotal">0</b></div>
+          <p class="muted small mt-1">Note: Ghouls can’t take Kindred‑exclusive options like Domain, Feeding, Herd, Thin‑Blooded. Haven allowed with interpretation; Status allowed (often derived from domitor).</p>
+        </div>
+        <div>
+          <label>Flaws (target 2 dots)</label>
+          <div class="mt-2 flex gap-2">
+            <select id="flawName" class="w-full"></select>
+            <select id="flawDots" class="w-24"></select>
+            <button id="addFlaw" class="btn">Add</button>
+          </div>
+          <div id="flawList" class="mt-3 space-y-2"></div>
+          <div class="text-sm mt-2">Total dots: <b id="flawTotal">0</b></div>
+          <p class="muted small mt-1">Ghoul‑only Flaws are provided below (e.g., Baneful Blood, Crone’s Curse, Distressing Fangs).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISCIPLINES -->
+    <section class="card section hidden" data-panel="disciplines">
+      <h2 class="text-xl font-semibold mb-3">Disciplines (Ghoul Rules)</h2>
+      <div class="grid-2">
+        <div>
+          <label for="chosenDiscipline">Choose a Discipline your domitor has</label>
+          <select id="chosenDiscipline"></select>
+        </div>
+        <div>
+          <label for="powerNames">Level‑1 Power Names (you count as 1 dot)</label>
+          <input id="powerNames" placeholder="Comma‑separated (e.g., Awe, Cloak of Shadows)" />
+        </div>
+      </div>
+      <p class="muted text-sm mt-3">Ghouls start with one level‑1 power from a Discipline their domitor possesses. Extra level‑1 powers may be bought later with XP. Using powers above level 1 via other means inflicts 1 Aggravated damage instead of a Rouse Check.</p>
+    </section>
+
+    <!-- SUMMARY -->
+    <section class="card section hidden" data-panel="summary">
+      <h2 class="text-xl font-semibold mb-3">Summary</h2>
+      <div class="grid-3">
+        <div>
+          <h3 class="font-semibold">Derived</h3>
+          <div>Health: <b id="sumHealth">—</b></div>
+          <div>Willpower: <b id="sumWP">—</b></div>
+          <div>Humanity (start): <b>7</b></div>
+        </div>
+        <div>
+          <h3 class="font-semibold">Discipline</h3>
+          <div id="sumDiscipline">—</div>
+          <div class="text-sm">Powers: <span id="sumPowers">—</span></div>
+        </div>
+        <div>
+          <h3 class="font-semibold">Checklist</h3>
+          <ul class="list-disc pl-6 text-sm">
+            <li>Advantages ≤ 7 dots (now <b id="sumAdv">0</b>)</li>
+            <li>Flaws ≈ 2 dots (now <b id="sumFlaw">0</b>)</li>
+            <li>One Discipline level‑1 power chosen</li>
+            <li>Free Specialties set</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- DICE -->
+    <section class="card section hidden" data-panel="dice">
+      <h2 class="text-xl font-semibold mb-3">Dice Roller (Attribute + Skill)</h2>
+      <div class="grid-3 items-end">
+        <div>
+          <label for="pool">Manual Pool Size</label>
+          <input id="pool" type="number" min="0" value="5" />
+        </div>
+        <div></div>
+        <div class="flex justify-end">
+          <button id="roll" class="btn">Roll</button>
+        </div>
+      </div>
+      <div id="rollOut" class="mt-3 p-3 rounded-lg" style="background:#0f1116;border:1px solid var(--line)">
+        <div class="font-semibold">Results</div>
+        <div>Rolls: <span id="rolls">—</span></div>
+        <div>Successes (6+; 10s help crit): <b id="successes">—</b></div>
+      </div>
+    </section>
+
+    <footer class="muted text-xs">Fan-made tool for Vampire: The Masquerade 5th Edition ghoul creation. Non‑commercial personal use.</footer>
   </main>
 
   <script>
+    // ----------------- Data -----------------
+    const ATTRS = ["Strength","Dexterity","Stamina","Charisma","Manipulation","Composure","Intelligence","Wits","Resolve"];
+    const SKILLS = [
+      "Athletics","Brawl","Craft","Drive","Firearms","Larceny","Melee","Stealth","Survival",
+      "Animal Ken","Etiquette","Insight","Intimidation","Leadership","Performance","Persuasion","Streetwise","Subterfuge",
+      "Academics","Awareness","Finance","Investigation","Medicine","Occult","Politics","Science","Technology"
+    ];
+    const DISCIPLINES = ["Animalism","Auspex","Blood Sorcery","Celerity","Dominate","Fortitude","Obfuscate","Oblivion","Potence","Presence","Protean"]; 
+    const CLANS = ["Banu Haqim","Brujah","Gangrel","Hecata","Lasombra","Malkavian","Ministry","Nosferatu","Ravnos","Salubri","Toreador","Tremere","Tzimisce","Ventrue","Caitiff"]; 
+    const PRESETS = { Jack:{3:1,2:8,1:10}, Balanced:{3:3,2:5,1:7}, Specialist:{4:1,3:3,2:3,1:3} };
+
+    // Limited list of commonly used mortal/ghoul backgrounds & ghoul-only merits/flaws for dropdowns
+    const ADV_OPTIONS = [
+      "Allies","Contacts","Fame","Influence","Resources","Retainers","Status","Haven"
+    ];
+    const GHOUL_MERITS = ["Blood Empathy (••)", "Unseemly Aura (••)"];
+    const FLAW_OPTIONS = [
+      "Addiction","Dark Secret","Enemies","Prey Exclusion","Suspect","Wanted"
+    ];
+    const GHOUL_FLAWS = ["Baneful Blood (•–••)", "Crone's Curse (••)", "Distressing Fangs (•)"];
+
+    // Helpers
+    const nToDots = (n)=>[...Array(6).keys()].slice(0,6).map(i=>({value:i, label:i}));
+    const makeSel = (vals, selected)=>{
+      const s = document.createElement('select');
+      vals.forEach(v=>{ const o=document.createElement('option');
+        if(typeof v === 'object') { o.value=v.value; o.textContent=v.label; }
+        else { o.value=o.textContent=v; }
+        s.appendChild(o);
+      });
+      if(selected!==undefined) s.value = selected;
+      return s;
+    }
+
+    // ----------------- State -----------------
+    const state = {
+      name:"", concept:"", ambition:"", desire:"", notes:"",
+      domitor:{ name:"", clan:"", notes:"", disciplines:[] },
+      attrs:Object.fromEntries(ATTRS.map(a=>[a,2])),
+      skills:Object.fromEntries(SKILLS.map(s=>[s,0])),
+      freeSpecs:{ Academics:"", Craft:"", Performance:"", Science:"", extra:"" },
+      advantages:[], flaws:[],
+      chosenDiscipline:"", disciplinePowers:[],
+      dice:{ rolls:[], successes:0 }
+    };
+    state.attrs.Intelligence = 4; state.attrs.Manipulation = 1; state.attrs.Strength = 3; state.attrs.Dexterity = 3; state.attrs.Stamina = 3;
+
+    // ----------------- Tabs -----------------
+    document.querySelectorAll('.tabs .btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.tabs .btn').forEach(b=>b.setAttribute('aria-selected','false'));
+        btn.setAttribute('aria-selected','true');
+        const v = btn.dataset.tab;
+        document.querySelectorAll('[data-panel]').forEach(p=> p.classList.toggle('hidden', p.dataset.panel!==v));
+        if(v==='attributes'||v==='summary') updateDerived();
+        if(v==='summary') updateSummary();
+      });
+    });
+
+    // ----------------- Basics -----------------
+    bindInput('name', v=> state.name=v);
+    bindInput('concept', v=> state.concept=v);
+    bindInput('ambition', v=> state.ambition=v);
+    bindInput('desire', v=> state.desire=v);
+    bindInput('notes', v=> state.notes=v);
+
+    function bindInput(id, on){
+      const el = document.getElementById(id);
+      el.addEventListener('input', ()=> on(el.value));
+    }
+
+    // ----------------- Domitor -----------------
+    const clanSel = document.getElementById('domitorClan');
+    CLANS.forEach(c=>{ const o = document.createElement('option'); o.value=o.textContent=c; clanSel.appendChild(o); });
+    clanSel.addEventListener('change', ()=> state.domitor.clan = clanSel.value);
+    bindInput('domitorName', v=> state.domitor.name=v);
+    bindInput('domitorNotes', v=> state.domitor.notes=v);
+
+    const disWrap = document.getElementById('domitorDisciplines');
+    DISCIPLINES.forEach(d=>{
+      const row = document.createElement('label');
+      row.className = 'flex items-center gap-2 text-sm';
+      const cb = document.createElement('input'); cb.type='checkbox';
+      cb.addEventListener('change', ()=>{
+        const set = new Set(state.domitor.disciplines);
+        if(cb.checked) set.add(d); else set.delete(d);
+        state.domitor.disciplines = [...set];
+        refreshChosenDiscipline();
+      });
+      row.appendChild(cb); row.appendChild(document.createTextNode(d));
+      disWrap.appendChild(row);
+    });
+
+    function refreshChosenDiscipline(){
+      const sel = document.getElementById('chosenDiscipline');
+      sel.innerHTML = '';
+      const empty = document.createElement('option'); empty.value=''; empty.textContent='—'; sel.appendChild(empty);
+      state.domitor.disciplines.forEach(d=>{
+        const o = document.createElement('option'); o.value=o.textContent=d; sel.appendChild(o);
+      });
+      sel.value = state.chosenDiscipline && state.domitor.disciplines.includes(state.chosenDiscipline) ? state.chosenDiscipline : '';
+    }
+
+    // ----------------- Attributes -----------------
+    const attrGrid = document.getElementById('attrGrid');
+    const dotValues = [1,2,3,4,5];
+    ATTRS.forEach(a=>{
+      const wrap = document.createElement('div'); wrap.className='dotbox flex items-center gap-2 p-2 rounded-lg border border-[var(--line)]';
+      const lab = document.createElement('label'); lab.textContent=a; lab.className='w-36';
+      const sel = makeSel(dotValues.map(v=>({value:v, label:v})), state.attrs[a]);
+      sel.addEventListener('change', ()=>{ state.attrs[a] = Number(sel.value); updateDerived(); });
+      wrap.append(lab, sel);
+      attrGrid.appendChild(wrap);
+    });
+
+    function updateDerived(){
+      const vals = Object.values(state.attrs);
+      const at4 = vals.filter(v=>v===4).length;
+      const at3 = vals.filter(v=>v===3).length;
+      const at1 = vals.filter(v=>v===1).length;
+      document.getElementById('chkAt4').textContent = at4;
+      document.getElementById('chkAt3').textContent = at3;
+      document.getElementById('chkAt1').textContent = at1;
+      const health = (state.attrs.Stamina||0)+3;
+      const willpower = (state.attrs.Resolve||0)+(state.attrs.Composure||0);
+      document.getElementById('health').textContent = health;
+      document.getElementById('willpower').textContent = willpower;
+      document.getElementById('sumHealth').textContent = health;
+      document.getElementById('sumWP').textContent = willpower;
+    }
+    updateDerived();
+
+    // ----------------- Skills -----------------
+    const presetSel = document.getElementById('preset');
+    Object.keys(PRESETS).forEach(k=>{ const o=document.createElement('option'); o.value=o.textContent=k; presetSel.appendChild(o); });
+    document.getElementById('applyPreset').addEventListener('click', ()=>{
+      const p = PRESETS[presetSel.value];
+      const order = [];
+      Object.entries(p).forEach(([lvl,count])=>{ for(let i=0;i<count;i++) order.push(Number(lvl)); });
+      SKILLS.forEach((s,i)=> state.skills[s] = order[i] ?? 0);
+      refreshSkills();
+    });
+
+    const skillA = document.getElementById('skillColA');
+    const skillB = document.getElementById('skillColB');
+
+    function makeSkillRow(s){
+      const wrap = document.createElement('div'); wrap.className='dotbox flex items-center gap-2 p-2 rounded-lg border border-[var(--line)]';
+      const lab = document.createElement('label'); lab.textContent=s; lab.className='w-44';
+      const sel = makeSel([0,1,2,3,4,5].map(v=>({value:v,label:v})), state.skills[s]);
+      sel.addEventListener('change', ()=>{ state.skills[s] = Number(sel.value); refreshPresetSummary(); });
+      wrap.append(lab, sel);
+      return wrap;
+    }
+
+    function refreshSkills(){
+      skillA.innerHTML = ''; skillB.innerHTML = '';
+      SKILLS.forEach((s,i)=>{ (i<9?skillA:skillB).appendChild(makeSkillRow(s)); });
+      refreshPresetSummary();
+    }
+    refreshSkills();
+
+    function refreshPresetSummary(){
+      const m = new Map();
+      Object.values(state.skills).forEach(v=> m.set(v, (m.get(v)||0)+1));
+      document.getElementById('sum4').textContent = m.get(4)||0;
+      document.getElementById('sum3').textContent = m.get(3)||0;
+      document.getElementById('sum2').textContent = m.get(2)||0;
+      document.getElementById('sum1').textContent = m.get(1)||0;
+      document.getElementById('sum0').textContent = m.get(0)||0;
+    }
+
+    // Free specialties inputs
+    const fsWrap = document.getElementById('freeSpecs');
+    Object.keys(state.freeSpecs).forEach(k=>{
+      const cell = document.createElement('div');
+      const lab = document.createElement('label'); lab.textContent = k.charAt(0).toUpperCase()+k.slice(1);
+      const input = document.createElement('input'); input.placeholder = `Specialty for ${k}`;
+      input.addEventListener('input',()=> state.freeSpecs[k]=input.value);
+      cell.append(lab,input); fsWrap.appendChild(cell);
+    });
+
+    // ----------------- Advantages / Flaws -----------------
+    const advNameSel = document.getElementById('advName');
+    const advDotsSel = document.getElementById('advDots');
+    const flawNameSel = document.getElementById('flawName');
+    const flawDotsSel = document.getElementById('flawDots');
+
+    ;[...ADV_OPTIONS, ...GHOUL_MERITS].forEach(n=>{ const o=document.createElement('option'); o.value=o.textContent=n; advNameSel.appendChild(o); });
+    [1,2,3,4,5].forEach(n=>{ const o=document.createElement('option'); o.value=o.textContent=n; advDotsSel.appendChild(o); });
+
+    ;[...FLAW_OPTIONS, ...GHOUL_FLAWS].forEach(n=>{ const o=document.createElement('option'); o.value=o.textContent=n; flawNameSel.appendChild(o); });
+    [1,2].forEach(n=>{ const o=document.createElement('option'); o.value=o.textContent=n; flawDotsSel.appendChild(o); });
+
+    const advList = document.getElementById('advList');
+    const flawList = document.getElementById('flawList');
+
+    document.getElementById('addAdv').addEventListener('click', ()=>{
+      const n = advNameSel.value; const d = Number(advDotsSel.value)||1;
+      if(!n) return; state.advantages.push({name:n,dots:d}); renderAF();
+    });
+    document.getElementById('addFlaw').addEventListener('click', ()=>{
+      const n = flawNameSel.value; const d = Number(flawDotsSel.value)||1;
+      if(!n) return; state.flaws.push({name:n,dots:d}); renderAF();
+    });
+
+    function renderAF(){
+      advList.innerHTML = ''; flawList.innerHTML = '';
+      let advTot = 0, flawTot = 0;
+      state.advantages.forEach((it,i)=>{ advTot += Number(it.dots)||0; advList.appendChild(rowAF('adv', i, it)); });
+      state.flaws.forEach((it,i)=>{ flawTot += Number(it.dots)||0; flawList.appendChild(rowAF('flaw', i, it)); });
+      document.getElementById('advTotal').textContent = advTot; document.getElementById('flawTotal').textContent = flawTot;
+      document.getElementById('sumAdv').textContent = advTot; document.getElementById('sumFlaw').textContent = flawTot;
+    }
+
+    function rowAF(type, idx, it){
+      const wrap = document.createElement('div'); wrap.className='flex items-center justify-between rounded-lg border border-[var(--line)] p-2';
+      const left = document.createElement('div'); left.innerHTML = `${it.name} <span class="muted text-xs">(${it.dots} dots)</span>`;
+      const right = document.createElement('div'); right.className='flex items-center gap-2';
+      const minus = mkBtn('−'); const plus = mkBtn('+'); const rm = mkBtn('Remove');
+      minus.addEventListener('click', ()=>{ it.dots = Math.max(1, (it.dots||1)-1); renderAF(); });
+      plus.addEventListener('click', ()=>{ it.dots = Math.min(5, (it.dots||1)+1); renderAF(); });
+      rm.addEventListener('click', ()=>{ (type==='adv'?state.advantages:state.flaws).splice(idx,1); renderAF(); });
+      right.append(minus,plus,rm); wrap.append(left,right); return wrap;
+    }
+
+    function mkBtn(t){ const b=document.createElement('button'); b.textContent=t; b.className='btn px-2'; return b; }
+
+    // ----------------- Disciplines -----------------
+    const chosenSel = document.getElementById('chosenDiscipline');
+    chosenSel.addEventListener('change', ()=>{ state.chosenDiscipline = chosenSel.value; updateSummary(); });
+    document.getElementById('powerNames').addEventListener('input', (e)=>{ state.disciplinePowers = e.target.value.split(',').map(x=>x.trim()).filter(Boolean); updateSummary(); });
+
+    refreshChosenDiscipline();
+
+    // ----------------- Summary -----------------
+    function updateSummary(){
+      document.getElementById('sumDiscipline').textContent = state.chosenDiscipline ? `${state.chosenDiscipline} (1)` : '—';
+      document.getElementById('sumPowers').textContent = state.disciplinePowers.length ? state.disciplinePowers.join(', ') : '—';
+    }
+
+    // ----------------- Dice -----------------
+    document.getElementById('roll').addEventListener('click', ()=>{
+      const n = Math.max(0, Number(document.getElementById('pool').value)||0);
+      const rolls = Array.from({length:n}, ()=> 1+Math.floor(Math.random()*10));
+      const tens = rolls.filter(r=>r===10).length; // simplified crit support
+      const successes = rolls.filter(r=>r>=6).length + (tens>1 ? tens : 0);
+      document.getElementById('rolls').textContent = rolls.join(', ');
+      document.getElementById('successes').textContent = successes;
+    });
+
+    // ----------------- PDF Export -----------------
     document.getElementById('downloadPdf').addEventListener('click', async ()=>{
-      const { PDFDocument, StandardFonts } = PDFLib;
+      const { PDFDocument, StandardFonts, rgb } = PDFLib;
       const pdfDoc = await PDFDocument.create();
       const page = pdfDoc.addPage([612,792]);
+      const form = pdfDoc.getForm();
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
       const title = (x,y,t)=> page.drawText(t,{x,y,size:18,font});
-      const label = (x,y,t)=> page.drawText(t,{x,y,size:10,font});
-
-      const name = document.getElementById('name').value;
-      const concept = document.getElementById('concept').value;
-      const notes = document.getElementById('notes').value;
+      const label = (x,y,t)=> page.drawText(t,{x,y,size:10,font,color:rgb(0.7,0.7,0.7)});
 
       title(40,750,'VTM5 Ghoul Character');
-      label(40,730,'Name: '+name);
-      label(40,715,'Concept: '+concept);
-      label(40,700,'Notes: '+notes);
+      const tf = (name,x,y,w=200,h=16,val='')=>{ const f=form.createTextField(name); f.setText(String(val||'')); f.addToPage(page,{x,y,width:w,height:h}); return f; };
 
+      tf('Name',40,720,250,18,state.name); label(40,740,'Name');
+      tf('Concept',310,720,250,18,state.concept); label(310,740,'Concept');
+      tf('Ambition',40,696,250,16,state.ambition); label(40,712,'Ambition');
+      tf('Desire',310,696,250,16,state.desire); label(310,712,'Desire');
+
+      label(40,676,'Domitor');
+      tf('DomitorName',40,658,200,18,state.domitor.name); label(40,670,'Name');
+      tf('DomitorClan',250,658,140,18,state.domitor.clan); label(250,670,'Clan');
+      tf('DomitorDisciplines',400,658,160,18,state.domitor.disciplines.join(', ')); label(400,670,'Disciplines (domitor)');
+
+      label(40,638,'Attributes');
+      ATTRS.forEach((a,i)=>{
+        const x = 40 + (i%3)*180; const y = 620 - Math.floor(i/3)*24;
+        label(x,y+14,a);
+        tf(`Attr_${a}`,x,y,40,14,state.attrs[a]);
+      });
+
+      label(40,546,'Derived');
+      const health = (state.attrs.Stamina||0)+3; const will = (state.attrs.Resolve||0)+(state.attrs.Composure||0);
+      tf('Health',40,528,40,14,health); label(40,540,'Health');
+      tf('Willpower',100,528,40,14,will); label(100,540,'Willpower');
+
+      label(300,546,'Skills');
+      SKILLS.forEach((s,i)=>{
+        const x = 300 + (i%3)*90; const y = 528 - Math.floor(i/3)*18;
+        tf(`Skill_${s}`,x,y,30,14,state.skills[s]);
+        label(x+34,y+2,s);
+      });
+
+      label(40,500,'Discipline (Level 1) from domitor');
+      tf('Discipline',40,482,520,16, state.chosenDiscipline + (state.disciplinePowers.length?`: ${state.disciplinePowers.join(', ')}`:''));
+
+      tf('Advantages',40,456,520,16, state.advantages.map(a=>`${a.name} (${a.dots})`).join('; ')); label(40,472,'Advantages (target 7 dots)');
+      tf('Flaws',40,430,520,16, state.flaws.map(a=>`${a.name} (${a.dots})`).join('; ')); label(40,446,'Flaws (target 2 dots)');
+
+      tf('Notes',40,312,520,108, state.notes); label(40,428,'Notes / Touchstones & Convictions / Relationship');
+
+      form.updateFieldAppearances(font);
       const bytes = await pdfDoc.save();
       const blob = new Blob([bytes], {type:'application/pdf'});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href=url; a.download=`${name||'ghoul'}.pdf`; a.click(); URL.revokeObjectURL(url);
+      const a = document.createElement('a'); a.href=url; a.download=`${state.name||'ghoul'}.pdf`; a.click(); URL.revokeObjectURL(url);
     });
   </script>
 </body>
